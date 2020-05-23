@@ -6,9 +6,9 @@ use crate::codec::{RecvError, UserError};
 use crate::frame::{self, Reason};
 
 use bytes::Buf;
+use futures_io::AsyncWrite;
 use http;
 use std::task::{Context, Poll, Waker};
-use tokio::io::AsyncWrite;
 
 use std::io;
 

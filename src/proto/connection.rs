@@ -7,12 +7,12 @@ use crate::proto::*;
 
 use bytes::{Buf, Bytes};
 use futures_core::Stream;
+use futures_io::{AsyncRead, AsyncWrite};
 use std::io;
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::Duration;
-use tokio::io::{AsyncRead, AsyncWrite};
 
 /// An H2 connection
 #[derive(Debug)]

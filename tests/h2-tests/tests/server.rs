@@ -3,7 +3,7 @@
 use futures::future::{join, poll_fn};
 use futures::StreamExt;
 use h2_support::prelude::*;
-use tokio::io::AsyncWriteExt;
+use futures_util::io::AsyncWriteExt;
 
 const SETTINGS: &'static [u8] = &[0, 0, 0, 4, 0, 0, 0, 0, 0];
 const SETTINGS_ACK: &'static [u8] = &[0, 0, 0, 4, 1, 0, 0, 0, 0];

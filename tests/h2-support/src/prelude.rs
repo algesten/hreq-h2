@@ -28,7 +28,11 @@ pub use super::assert::assert_frame_eq;
 
 // Re-export useful crates
 pub use tokio_test::io as mock_io;
+<<<<<<< HEAD
 pub use {bytes, futures, http, tokio::io as tokio_io, tracing, tracing_subscriber};
+=======
+pub use {bytes, env_logger, futures, http, futures_io};
+>>>>>>> 368ffdc... remove tokio deps and use futures AsyncWrite/Read
 
 // Re-export primary future types
 pub use futures::{Future, Sink, Stream};
@@ -47,7 +51,7 @@ pub use bytes::{
     Buf, BufMut, Bytes, BytesMut,
 };
 
-pub use tokio::io::{AsyncRead, AsyncWrite};
+pub use futures_io::{AsyncRead, AsyncWrite};
 
 pub use std::thread;
 pub use std::time::Duration;
