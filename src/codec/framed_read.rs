@@ -14,7 +14,7 @@ use std::io;
 
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use tokio::io::AsyncRead;
+use futures_io::AsyncRead;
 use tokio_util::codec::FramedRead as InnerFramedRead;
 use tokio_util::codec::{LengthDelimitedCodec, LengthDelimitedCodecError};
 
