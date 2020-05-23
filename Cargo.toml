@@ -1,5 +1,5 @@
 [package]
-name = "h2"
+name = "hreq-h2"
 # When releasing to crates.io:
 # - Update doc URL.
 #   - html_root_url.
@@ -13,7 +13,7 @@ authors = [
 ]
 description = "An HTTP/2.0 client and server"
 documentation = "https://docs.rs/h2/0.2.5/h2/"
-repository = "https://github.com/hyperium/h2"
+repository = "https://github.com/algesten/hreq-h2"
 readme = "README.md"
 keywords = ["http", "async", "non-blocking"]
 categories = ["asynchronous", "web-programming", "network-programming"]
@@ -32,11 +32,11 @@ unstable = []
 
 [workspace]
 members = [
-    "tests/h2-fuzz",
-    "tests/h2-tests",
-    "tests/h2-support",
-    "util/genfixture",
-    "util/genhuff",
+    # "tests/h2-fuzz",
+    # "tests/h2-tests",
+    # "tests/h2-support",
+    # "util/genfixture",
+    # "util/genhuff",
 ]
 
 [dependencies]
