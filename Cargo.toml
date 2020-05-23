@@ -50,6 +50,7 @@ tracing = { version = "0.1.13", default-features = false, features = ["std", "lo
 fnv = "1.0.5"
 slab = "0.4.0"
 indexmap = "1.0"
+pin-project-lite = "0.1.4"
 
 [dev-dependencies]
 

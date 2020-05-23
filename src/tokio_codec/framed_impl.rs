@@ -1,13 +1,11 @@
-use crate::codec::decoder::Decoder;
-use crate::codec::encoder::Encoder;
+use super::decoder::Decoder;
+use super::encoder::Encoder;
 
-use tokio::{
-    io::{AsyncRead, AsyncWrite},
-    stream::Stream,
-};
+use futures_io::{AsyncRead, AsyncWrite};
+use futures_core::Stream;
 
 use bytes::{Buf, BytesMut};
-use futures_core::ready;
+// use futures_core::ready;
 use futures_sink::Sink;
 use pin_project_lite::pin_project;
 use std::borrow::{Borrow, BorrowMut};
@@ -147,8 +145,23 @@ where
             // got room for at least one byte to read to ensure that we don't
             // get a spurious 0 that looks like EOF
             state.buffer.reserve(1);
-            let bytect = match pinned.inner.as_mut().poll_read_buf(cx, &mut state.buffer)? {
-                Poll::Ready(ct) => ct,
+
+            // This undoes the optimization tokio AsyncRead tries to achieve.
+            use bytes::BufMut;
+            use std::mem::MaybeUninit;
+
+            let b = state.buffer.bytes_mut();
+            for x in b.iter_mut() {
+                *x = MaybeUninit::new(0);
+            }
+
+            let b = unsafe { &mut *(b as *mut [MaybeUninit<u8>] as *mut [u8]) };
+
+            let bytect = match pinned.inner.as_mut().poll_read(cx, b)? {
+                Poll::Ready(ct) => {
+                    unsafe { state.buffer.advance_mut(ct) };
+                    ct
+                },
                 Poll::Pending => return Poll::Pending,
             };
             if bytect == 0 {
@@ -217,7 +230,7 @@ where
 
     fn poll_close(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
         ready!(self.as_mut().poll_flush(cx))?;
-        ready!(self.project().inner.poll_shutdown(cx))?;
+        ready!(self.project().inner.poll_close(cx))?;
 
         Poll::Ready(Ok(()))
     }
