@@ -1,5 +1,5 @@
-use crate::codec::decoder::Decoder;
-use crate::codec::encoder::Encoder;
+use super::decoder::Decoder;
+use super::encoder::Encoder;
 
 use bytes::{Buf, BufMut, BytesMut};
 use std::{cmp, fmt, io, str, usize};

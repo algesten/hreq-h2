@@ -1,6 +1,6 @@
-use crate::codec::Framed;
+use super::Framed;
 
-use tokio::io::{AsyncRead, AsyncWrite};
+use futures_io::{AsyncRead, AsyncWrite};
 
 use bytes::BytesMut;
 use std::io;

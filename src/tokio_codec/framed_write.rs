@@ -1,7 +1,8 @@
-use crate::codec::encoder::Encoder;
-use crate::codec::framed_impl::{FramedImpl, WriteFrame};
+use super::encoder::Encoder;
+use super::framed_impl::{FramedImpl, WriteFrame};
 
-use tokio::{io::AsyncWrite, stream::Stream};
+use futures_io::AsyncWrite;
+use futures_core::Stream;
 
 use futures_sink::Sink;
 use pin_project_lite::pin_project;

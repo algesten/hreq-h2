@@ -1,7 +1,8 @@
-use crate::codec::framed_impl::{FramedImpl, ReadFrame};
-use crate::codec::Decoder;
+use super::framed_impl::{FramedImpl, ReadFrame};
+use super::Decoder;
 
-use tokio::{io::AsyncRead, stream::Stream};
+use futures_io::AsyncRead;
+use futures_core::Stream;
 
 use bytes::BytesMut;
 use futures_sink::Sink;
