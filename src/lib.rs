@@ -106,6 +106,7 @@ mod error;
 mod hpack;
 mod proto;
 
+#[allow(dead_code)]
 mod tokio_codec;
 
 #[cfg(not(feature = "unstable"))]
