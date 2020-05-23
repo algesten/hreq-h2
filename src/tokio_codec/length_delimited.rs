@@ -372,9 +372,9 @@
 //! [`Encoder`]: trait@Encoder
 //! [`BytesMut`]: https://docs.rs/bytes/0.4/bytes/struct.BytesMut.html
 
-use crate::codec::{Decoder, Encoder, Framed, FramedRead, FramedWrite};
+use super::{Decoder, Encoder, Framed, FramedRead, FramedWrite};
 
-use tokio::io::{AsyncRead, AsyncWrite};
+use futures_io::{AsyncRead, AsyncWrite};
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 use std::error::Error as StdError;

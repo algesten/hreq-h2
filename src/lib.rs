@@ -106,6 +106,8 @@ mod error;
 mod hpack;
 mod proto;
 
+mod tokio_codec;
+
 #[cfg(not(feature = "unstable"))]
 mod frame;
 
