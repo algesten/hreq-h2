@@ -141,6 +141,8 @@ use crate::proto;
 use crate::{FlowControl, PingPong, RecvStream, SendStream};
 
 use bytes::{Buf, Bytes};
+use futures_io::{AsyncRead, AsyncWrite};
+use futures_util::io::AsyncWriteExt;
 use http::{uri, HeaderMap, Method, Request, Response, Version};
 use std::fmt;
 use std::future::Future;
@@ -148,7 +150,6 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::Duration;
 use std::usize;
-use tokio::io::{AsyncRead, AsyncWrite, AsyncWriteExt};
 
 /// Initializes new HTTP/2.0 streams on a connection by sending a request.
 ///
@@ -208,7 +209,7 @@ pub struct ReadySendRequest<B: Buf> {
 /// # Examples
 ///
 /// ```
-/// # use tokio::io::{AsyncRead, AsyncWrite};
+/// # use futures_io::{AsyncRead, AsyncWrite};
 /// # use h2::client;
 /// # use h2::client::*;
 /// #
@@ -286,7 +287,7 @@ pub struct PushPromises {
 /// # Examples
 ///
 /// ```
-/// # use tokio::io::{AsyncRead, AsyncWrite};
+/// # use futures_io::{AsyncRead, AsyncWrite};
 /// # use h2::client::*;
 /// # use bytes::Bytes;
 /// #
@@ -593,7 +594,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use bytes::Bytes;
     /// #
@@ -635,7 +636,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use bytes::Bytes;
     /// #
@@ -670,7 +671,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use bytes::Bytes;
     /// #
@@ -704,7 +705,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use bytes::Bytes;
     /// #
@@ -744,7 +745,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use bytes::Bytes;
     /// #
@@ -793,7 +794,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use bytes::Bytes;
     /// #
@@ -834,7 +835,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use bytes::Bytes;
     /// #
@@ -879,7 +880,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use bytes::Bytes;
     /// #
@@ -924,7 +925,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use std::time::Duration;
     /// # use bytes::Bytes;
@@ -962,7 +963,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use std::time::Duration;
     /// # use bytes::Bytes;
@@ -1021,7 +1022,7 @@ impl Builder {
     /// Basic usage:
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// # use bytes::Bytes;
     /// #
@@ -1042,7 +1043,7 @@ impl Builder {
     /// type will be `&'static [u8]`.
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::client::*;
     /// #
     /// # async fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -1095,7 +1096,7 @@ impl Default for Builder {
 /// # Examples
 ///
 /// ```
-/// # use tokio::io::{AsyncRead, AsyncWrite};
+/// # use futures_io::{AsyncRead, AsyncWrite};
 /// # use h2::client;
 /// # use h2::client::*;
 /// #

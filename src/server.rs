@@ -121,13 +121,13 @@ use crate::proto::{self, Config, Prioritized};
 use crate::{FlowControl, PingPong, RecvStream, SendStream};
 
 use bytes::{Buf, Bytes};
+use futures_io::{AsyncRead, AsyncWrite};
 use http::{HeaderMap, Method, Request, Response};
 use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::time::Duration;
 use std::{convert, fmt, io, mem};
-use tokio::io::{AsyncRead, AsyncWrite};
 
 /// In progress HTTP/2.0 connection handshake future.
 ///
@@ -172,7 +172,7 @@ pub struct Handshake<T, B: Buf = Bytes> {
 /// # Examples
 ///
 /// ```
-/// # use tokio::io::{AsyncRead, AsyncWrite};
+/// # use futures_io::{AsyncRead, AsyncWrite};
 /// # use h2::server;
 /// # use h2::server::*;
 /// #
@@ -210,7 +210,7 @@ pub struct Connection<T, B: Buf> {
 /// # Examples
 ///
 /// ```
-/// # use tokio::io::{AsyncRead, AsyncWrite};
+/// # use futures_io::{AsyncRead, AsyncWrite};
 /// # use h2::server::*;
 /// #
 /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -331,7 +331,7 @@ const PREFACE: [u8; 24] = *b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
 /// # Examples
 ///
 /// ```
-/// # use tokio::io::{AsyncRead, AsyncWrite};
+/// # use futures_io::{AsyncRead, AsyncWrite};
 /// # use h2::server;
 /// # use h2::server::*;
 /// #
@@ -555,7 +555,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// #
     /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -594,7 +594,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// #
     /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -628,7 +628,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// #
     /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -661,7 +661,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// #
     /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -700,7 +700,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// #
     /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -748,7 +748,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// #
     /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -794,7 +794,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// #
     /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -840,7 +840,7 @@ impl Builder {
     /// # Examples
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// # use std::time::Duration;
     /// #
@@ -883,7 +883,7 @@ impl Builder {
     /// Basic usage:
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// #
     /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)
@@ -903,7 +903,7 @@ impl Builder {
     /// type will be `&'static [u8]`.
     ///
     /// ```
-    /// # use tokio::io::{AsyncRead, AsyncWrite};
+    /// # use futures_io::{AsyncRead, AsyncWrite};
     /// # use h2::server::*;
     /// #
     /// # fn doc<T: AsyncRead + AsyncWrite + Unpin>(my_io: T)

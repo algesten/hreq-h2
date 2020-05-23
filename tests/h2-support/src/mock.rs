@@ -6,7 +6,8 @@ use h2::{self, RecvError, SendError};
 use futures::future::poll_fn;
 use futures::{ready, Stream, StreamExt};
 
-use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
+use futures_io::{AsyncRead, AsyncWrite};
+use futures_util::io::{AsyncWriteExt, AsyncReadExt};
 
 use super::assert::assert_frame_eq;
 use std::pin::Pin;
