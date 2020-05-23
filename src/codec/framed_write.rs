@@ -191,11 +191,13 @@ where
                     Some(Next::Data(ref mut frame)) => {
                         log::trace!("  -> queued data frame");
                         let mut buf = (&mut self.buf).chain(frame.payload_mut());
-                        ready!(Pin::new(&mut self.inner).poll_write_buf(cx, &mut buf))?;
+                        let n = ready!(Pin::new(&mut self.inner).poll_write(cx, buf.bytes()))?;
+                        buf.advance(n);
                     }
                     _ => {
                         log::trace!("  -> not a queued data frame");
-                        ready!(Pin::new(&mut self.inner).poll_write_buf(cx, &mut self.buf))?;
+                        let n = ready!(Pin::new(&mut self.inner).poll_write(cx, self.buf.bytes()))?;
+                        self.buf.advance(n);
                     }
                 }
             }
@@ -244,7 +246,7 @@ where
     /// Close the codec
     pub fn shutdown(&mut self, cx: &mut Context) -> Poll<io::Result<()>> {
         ready!(self.flush(cx))?;
-        Pin::new(&mut self.inner).poll_shutdown(cx)
+        Pin::new(&mut self.inner).poll_close(cx)
     }
 
     fn has_capacity(&self) -> bool {
@@ -287,9 +289,9 @@ impl<T, B> FramedWrite<T, B> {
 }
 
 impl<T: AsyncRead + Unpin, B> AsyncRead for FramedWrite<T, B> {
-    unsafe fn prepare_uninitialized_buffer(&self, buf: &mut [std::mem::MaybeUninit<u8>]) -> bool {
-        self.inner.prepare_uninitialized_buffer(buf)
-    }
+    // unsafe fn prepare_uninitialized_buffer(&self, buf: &mut [std::mem::MaybeUninit<u8>]) -> bool {
+    //     self.inner.prepare_uninitialized_buffer(buf)
+    // }
 
     fn poll_read(
         mut self: Pin<&mut Self>,
@@ -299,13 +301,13 @@ impl<T: AsyncRead + Unpin, B> AsyncRead for FramedWrite<T, B> {
         Pin::new(&mut self.inner).poll_read(cx, buf)
     }
 
-    fn poll_read_buf<Buf: BufMut>(
-        mut self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
-        buf: &mut Buf,
-    ) -> Poll<io::Result<usize>> {
-        Pin::new(&mut self.inner).poll_read_buf(cx, buf)
-    }
+    // fn poll_read_buf<Buf: BufMut>(
+    //     mut self: Pin<&mut Self>,
+    //     cx: &mut Context<'_>,
+    //     buf: &mut Buf,
+    // ) -> Poll<io::Result<usize>> {
+    //     Pin::new(&mut self.inner).poll_read_buf(cx, buf)
+    // }
 }
 
 // We never project the Pin to `B`.
