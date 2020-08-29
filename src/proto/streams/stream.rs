@@ -265,7 +265,7 @@ impl Stream {
         self.send_capacity_inc = true;
         self.send_flow.assign_capacity(capacity);
 
-        tracing::trace!(
+        log::trace!(
             "  assigned capacity to stream; available={}; buffered={}; id={:?}",
             self.send_flow.available(),
             self.buffered_send_data,
@@ -274,7 +274,7 @@ impl Stream {
 
         // Only notify if the capacity exceeds the amount of buffered data
         if self.send_flow.available() > self.buffered_send_data {
-            tracing::trace!("  notifying task");
+            log::trace!("  notifying task");
             self.notify_send();
         }
     }

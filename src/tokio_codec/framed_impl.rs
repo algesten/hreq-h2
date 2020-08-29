@@ -7,7 +7,6 @@ use futures_core::Stream;
 use bytes::{Buf, BytesMut};
 // use futures_core::ready;
 use futures_sink::Sink;
-use log::trace;
 use pin_project_lite::pin_project;
 use std::borrow::{Borrow, BorrowMut};
 use std::io;
@@ -130,10 +129,10 @@ where
                     return Poll::Ready(frame.map(Ok));
                 }
 
-                trace!("attempting to decode a frame");
+                log::trace!("attempting to decode a frame");
 
                 if let Some(frame) = pinned.codec.decode(&mut state.buffer)? {
-                    trace!("frame decoded from buffer");
+                    log::trace!("frame decoded from buffer");
                     return Poll::Ready(Some(Ok(frame)));
                 }
 
@@ -200,12 +199,12 @@ where
     }
 
     fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        trace!("flushing framed transport");
+        log::trace!("flushing framed transport");
         let mut pinned = self.project();
 
         while !pinned.state.borrow_mut().buffer.is_empty() {
             let WriteFrame { buffer } = pinned.state.borrow_mut();
-            trace!("writing; remaining={}", buffer.len());
+            log::trace!("writing; remaining={}", buffer.len());
 
             let buf = &buffer;
             let n = ready!(pinned.inner.as_mut().poll_write(cx, &buf))?;
@@ -225,7 +224,7 @@ where
         // Try flushing the underlying IO
         ready!(pinned.inner.poll_flush(cx))?;
 
-        trace!("framed transport flushed");
+        log::trace!("framed transport flushed");
         Poll::Ready(Ok(()))
     }
 

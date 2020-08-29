@@ -1130,12 +1130,12 @@ where
         mut io: T,
         builder: Builder,
     ) -> Result<(SendRequest<B>, Connection<T, B>), crate::Error> {
-        tracing::debug!("binding client connection");
+        log::debug!("binding client connection");
 
         let msg: &'static [u8] = b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
         io.write_all(msg).await.map_err(crate::Error::from_io)?;
 
-        tracing::debug!("client connection bound");
+        log::debug!("client connection bound");
 
         // Create the codec
         let mut codec = Codec::new(io);

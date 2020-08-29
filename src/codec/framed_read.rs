@@ -62,7 +62,7 @@ impl<T> FramedRead<T> {
     fn decode_frame(&mut self, mut bytes: BytesMut) -> Result<Option<Frame>, RecvError> {
         use self::RecvError::*;
 
-        tracing::trace!("decoding frame from {}B", bytes.len());
+        log::trace!("decoding frame from {}B", bytes.len());
 
         // Parse the head
         let head = frame::Head::parse(&bytes);
@@ -74,7 +74,7 @@ impl<T> FramedRead<T> {
 
         let kind = head.kind();
 
-        tracing::trace!("    -> kind={:?}", kind);
+        log::trace!("    -> kind={:?}", kind);
 
         macro_rules! header_block {
             ($frame:ident, $head:ident, $bytes:ident) => ({
@@ -124,7 +124,7 @@ impl<T> FramedRead<T> {
                 if is_end_headers {
                     frame.into()
                 } else {
-                    tracing::trace!("loaded partial header block");
+                    log::trace!("loaded partial header block");
                     // Defer returning the frame
                     self.partial = Some(Partial {
                         frame: Continuable::$frame(frame),
@@ -339,16 +339,16 @@ where
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         loop {
-            tracing::trace!("poll");
+            log::trace!("poll");
             let bytes = match ready!(Pin::new(&mut self.inner).poll_next(cx)) {
                 Some(Ok(bytes)) => bytes,
                 Some(Err(e)) => return Poll::Ready(Some(Err(map_err(e)))),
                 None => return Poll::Ready(None),
             };
 
-            tracing::trace!("poll; bytes={}B", bytes.len());
+            log::trace!("poll; bytes={}B", bytes.len());
             if let Some(frame) = self.decode_frame(bytes)? {
-                tracing::debug!("received; frame={:?}", frame);
+                log::debug!("received; frame={:?}", frame);
                 return Poll::Ready(Some(Ok(frame)));
             }
         }
