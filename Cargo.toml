@@ -70,4 +70,4 @@ env_logger = { version = "0.5.3", default-features = false }
 rustls = "0.16"
 tokio-rustls = "0.12.0"
 webpki = "0.21"
-webpki-roots = "0.17"
+webpki-roots = "0.20"
