@@ -44,9 +44,6 @@ where
     /// Stream state handler
     streams: Streams<B, P>,
 
-    /// A `tracing` span tracking the lifetime of the connection.
-    span: tracing::Span,
-
     /// Client or server
     _phantom: PhantomData<P>,
 }
@@ -103,7 +100,6 @@ where
             ping_pong: PingPong::new(),
             settings: Settings::new(config.settings),
             streams,
-            span: tracing::debug_span!("Connection", peer = %P::NAME),
             _phantom: PhantomData,
         }
     }
@@ -125,9 +121,6 @@ where
     /// Returns `RecvError` as this may raise errors that are caused by delayed
     /// processing of received frames.
     fn poll_ready(&mut self, cx: &mut Context) -> Poll<Result<(), RecvError>> {
-        let _e = self.span.enter();
-        let span = tracing::trace_span!("poll_ready");
-        let _e = span.enter();
         // The order of these calls don't really matter too much
         ready!(self.ping_pong.send_pending_pong(cx, &mut self.codec))?;
         ready!(self.ping_pong.send_pending_ping(cx, &mut self.codec))?;
@@ -211,14 +204,9 @@ where
         // order to placate the borrow checker — `self` is mutably borrowed by
         // `poll2`, which means that we can't borrow `self.span` to enter it.
         // The clone is just an atomic ref bump.
-        let span = self.span.clone();
-        let _e = span.enter();
-        let span = tracing::trace_span!("poll");
-        let _e = span.enter();
         use crate::codec::RecvError::*;
 
         loop {
-            tracing::trace!(connection.state = ?self.state);
             // TODO: probably clean up this glob of code
             match self.state {
                 // When open, continue to poll a frame
@@ -246,13 +234,13 @@ where
                         // error. This is handled by setting a GOAWAY frame followed by
                         // terminating the connection.
                         Poll::Ready(Err(Connection(e))) => {
-                            tracing::debug!(error = ?e, "Connection::poll; connection error");
+                            log::debug!("Connection::poll; connection error={:?}", e);
 
                             // We may have already sent a GOAWAY for this error,
                             // if so, don't send another, just flush and close up.
                             if let Some(reason) = self.go_away.going_away_reason() {
                                 if reason == e {
-                                    tracing::trace!("    -> already going away");
+                                    log::trace!("    -> already going away");
                                     self.state = State::Closing(e);
                                     continue;
                                 }
@@ -266,7 +254,7 @@ where
                         // This is handled by resetting the frame then trying to read
                         // another frame.
                         Poll::Ready(Err(Stream { id, reason })) => {
-                            tracing::trace!(?id, ?reason, "stream error");
+                            log::trace!("stream error; id={:?}; reason={:?}", id, reason);
                             self.streams.send_reset(id, reason);
                         }
                         // Attempting to read a frame resulted in an I/O error. All
@@ -274,7 +262,7 @@ where
                         //
                         // TODO: Are I/O errors recoverable?
                         Poll::Ready(Err(Io(e))) => {
-                            tracing::debug!(error = ?e, "Connection::poll; IO error");
+                            log::debug!("Connection::poll; IO error={:?}", e);
                             let e = e.into();
 
                             // Reset all active streams
@@ -286,7 +274,7 @@ where
                     }
                 }
                 State::Closing(reason) => {
-                    tracing::trace!("connection closing after flush");
+                    log::trace!("connection closing after flush");
                     // Flush/shutdown the codec
                     ready!(self.codec.shutdown(cx))?;
 
@@ -333,28 +321,28 @@ where
 
             match ready!(Pin::new(&mut self.codec).poll_next(cx)?) {
                 Some(Headers(frame)) => {
-                    tracing::trace!(?frame, "recv HEADERS");
+                    log::trace!("recv HEADERS; frame={:?}", frame);
                     self.streams.recv_headers(frame)?;
                 }
                 Some(Data(frame)) => {
-                    tracing::trace!(?frame, "recv DATA");
+                    log::trace!("recv DATA; frame={:?}", frame);
                     self.streams.recv_data(frame)?;
                 }
                 Some(Reset(frame)) => {
-                    tracing::trace!(?frame, "recv RST_STREAM");
+                    log::trace!("recv RST_STREAM; frame={:?}", frame);
                     self.streams.recv_reset(frame)?;
                 }
                 Some(PushPromise(frame)) => {
-                    tracing::trace!(?frame, "recv PUSH_PROMISE");
+                    log::trace!("recv PUSH_PROMISE; frame={:?}", frame);
                     self.streams.recv_push_promise(frame)?;
                 }
                 Some(Settings(frame)) => {
-                    tracing::trace!(?frame, "recv SETTINGS");
+                    log::trace!("recv SETTINGS; frame={:?}", frame);
                     self.settings
                         .recv_settings(frame, &mut self.codec, &mut self.streams)?;
                 }
                 Some(GoAway(frame)) => {
-                    tracing::trace!(?frame, "recv GOAWAY");
+                    log::trace!("recv GOAWAY; frame={:?}", frame);
                     // This should prevent starting new streams,
                     // but should allow continuing to process current streams
                     // until they are all EOS. Once they are, State should
@@ -363,7 +351,7 @@ where
                     self.error = Some(frame.reason());
                 }
                 Some(Ping(frame)) => {
-                    tracing::trace!(?frame, "recv PING");
+                    log::trace!("recv PING; frame={:?}", frame);
                     let status = self.ping_pong.recv_ping(frame);
                     if status.is_shutdown() {
                         assert!(
@@ -376,15 +364,15 @@ where
                     }
                 }
                 Some(WindowUpdate(frame)) => {
-                    tracing::trace!(?frame, "recv WINDOW_UPDATE");
+                    log::trace!("recv WINDOW_UPDATE; frame={:?}", frame);
                     self.streams.recv_window_update(frame)?;
                 }
                 Some(Priority(frame)) => {
-                    tracing::trace!(?frame, "recv PRIORITY");
+                    log::trace!("recv PRIORITY; frame={:?}", frame);
                     // TODO: handle
                 }
                 None => {
-                    tracing::trace!("codec closed");
+                    log::trace!("codec closed");
                     self.streams.recv_eof(false).expect("mutex poisoned");
                     return Poll::Ready(Ok(()));
                 }

@@ -216,12 +216,12 @@ impl State {
         match self.inner {
             Open { local, .. } => {
                 // The remote side will continue to receive data.
-                tracing::trace!("recv_close: Open => HalfClosedRemote({:?})", local);
+                log::trace!("recv_close: Open => HalfClosedRemote({:?})", local);
                 self.inner = HalfClosedRemote(local);
                 Ok(())
             }
             HalfClosedLocal(..) => {
-                tracing::trace!("recv_close: HalfClosedLocal => Closed");
+                log::trace!("recv_close: HalfClosedLocal => Closed");
                 self.inner = Closed(Cause::EndStream);
                 Ok(())
             }
@@ -257,7 +257,7 @@ impl State {
             // previous state with the received RST_STREAM, so that the queue
             // will be cleared by `Prioritize::pop_frame`.
             state => {
-                tracing::trace!(
+                log::trace!(
                     "recv_reset; reason={:?}; state={:?}; queued={:?}",
                     reason,
                     state,
@@ -275,7 +275,7 @@ impl State {
         match self.inner {
             Closed(..) => {}
             _ => {
-                tracing::trace!("recv_err; err={:?}", err);
+                log::trace!("recv_err; err={:?}", err);
                 self.inner = Closed(match *err {
                     Proto(reason) => Cause::LocallyReset(reason),
                     Io(..) => Cause::Io,
@@ -288,7 +288,7 @@ impl State {
         match self.inner {
             Closed(..) => {}
             s => {
-                tracing::trace!("recv_eof; state={:?}", s);
+                log::trace!("recv_eof; state={:?}", s);
                 self.inner = Closed(Cause::Io);
             }
         }
@@ -299,11 +299,11 @@ impl State {
         match self.inner {
             Open { remote, .. } => {
                 // The remote side will continue to receive data.
-                tracing::trace!("send_close: Open => HalfClosedLocal({:?})", remote);
+                log::trace!("send_close: Open => HalfClosedLocal({:?})", remote);
                 self.inner = HalfClosedLocal(remote);
             }
             HalfClosedRemote(..) => {
-                tracing::trace!("send_close: HalfClosedRemote => Closed");
+                log::trace!("send_close: HalfClosedRemote => Closed");
                 self.inner = Closed(Cause::EndStream);
             }
             state => panic!("send_close: unexpected state {:?}", state),

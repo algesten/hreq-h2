@@ -12,11 +12,11 @@ use bytes::BytesMut;
 
 use std::io;
 
-use std::pin::Pin;
-use std::task::{Context, Poll};
-use futures_io::AsyncRead;
 use crate::tokio_codec::FramedRead as InnerFramedRead;
 use crate::tokio_codec::{LengthDelimitedCodec, LengthDelimitedCodecError};
+use futures_io::AsyncRead;
+use std::pin::Pin;
+use std::task::{Context, Poll};
 
 // 16 MB "sane default" taken from golang http2
 const DEFAULT_SETTINGS_MAX_HEADER_LIST_SIZE: usize = 16 << 20;
@@ -61,10 +61,8 @@ impl<T> FramedRead<T> {
 
     fn decode_frame(&mut self, mut bytes: BytesMut) -> Result<Option<Frame>, RecvError> {
         use self::RecvError::*;
-        let span = tracing::trace_span!("FramedRead::decode_frame", offset = bytes.len());
-        let _e = span.enter();
 
-        tracing::trace!("decoding frame from {}B", bytes.len());
+        log::trace!("decoding frame from {}B", bytes.len());
 
         // Parse the head
         let head = frame::Head::parse(&bytes);
@@ -76,7 +74,7 @@ impl<T> FramedRead<T> {
 
         let kind = head.kind();
 
-        tracing::trace!(frame.kind = ?kind);
+        log::trace!("    -> kind={:?}", kind);
 
         macro_rules! header_block {
             ($frame:ident, $head:ident, $bytes:ident) => ({
@@ -126,7 +124,7 @@ impl<T> FramedRead<T> {
                 if is_end_headers {
                     frame.into()
                 } else {
-                    tracing::trace!("loaded partial header block");
+                    log::trace!("loaded partial header block");
                     // Defer returning the frame
                     self.partial = Some(Partial {
                         frame: Continuable::$frame(frame),
@@ -340,19 +338,17 @@ where
     type Item = Result<Frame, RecvError>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        let span = tracing::trace_span!("FramedRead::poll_next");
-        let _e = span.enter();
         loop {
-            tracing::trace!("poll");
+            log::trace!("poll");
             let bytes = match ready!(Pin::new(&mut self.inner).poll_next(cx)) {
                 Some(Ok(bytes)) => bytes,
                 Some(Err(e)) => return Poll::Ready(Some(Err(map_err(e)))),
                 None => return Poll::Ready(None),
             };
 
-            tracing::trace!(read.bytes = bytes.len());
+            log::trace!("poll; bytes={}B", bytes.len());
             if let Some(frame) = self.decode_frame(bytes)? {
-                tracing::debug!(?frame, "received");
+                log::debug!("received; frame={:?}", frame);
                 return Poll::Ready(Some(Ok(frame)));
             }
         }

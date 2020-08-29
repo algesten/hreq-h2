@@ -80,11 +80,11 @@ impl Send {
             || fields.contains_key("keep-alive")
             || fields.contains_key("proxy-connection")
         {
-            tracing::debug!("illegal connection-specific headers found");
+            log::debug!("illegal connection-specific headers found");
             return Err(UserError::MalformedHeaders);
         } else if let Some(te) = fields.get(http::header::TE) {
             if te != "trailers" {
-                tracing::debug!("illegal connection-specific headers found");
+                log::debug!("illegal connection-specific headers found");
                 return Err(UserError::MalformedHeaders);
             }
         }
@@ -98,11 +98,7 @@ impl Send {
         stream: &mut store::Ptr,
         task: &mut Option<Waker>,
     ) -> Result<(), UserError> {
-        if !self.is_push_enabled {
-            return Err(UserError::PeerDisabledServerPush);
-        }
-
-        tracing::trace!(
+        log::trace!(
             "send_push_promise; frame={:?}; init_window={:?}",
             frame,
             self.init_window_sz
@@ -125,7 +121,7 @@ impl Send {
         counts: &mut Counts,
         task: &mut Option<Waker>,
     ) -> Result<(), UserError> {
-        tracing::trace!(
+        log::trace!(
             "send_headers; frame={:?}; init_window={:?}",
             frame,
             self.init_window_sz
@@ -174,7 +170,7 @@ impl Send {
         let is_closed = stream.state.is_closed();
         let is_empty = stream.pending_send.is_empty();
 
-        tracing::trace!(
+        log::trace!(
             "send_reset(..., reason={:?}, stream={:?}, ..., \
              is_reset={:?}; is_closed={:?}; pending_send.is_empty={:?}; \
              state={:?} \
@@ -189,7 +185,7 @@ impl Send {
 
         if is_reset {
             // Don't double reset
-            tracing::trace!(
+            log::trace!(
                 " -> not sending RST_STREAM ({:?} is already reset)",
                 stream.id
             );
@@ -202,7 +198,7 @@ impl Send {
         // If closed AND the send queue is flushed, then the stream cannot be
         // reset explicitly, either. Implicit resets can still be queued.
         if is_closed && is_empty {
-            tracing::trace!(
+            log::trace!(
                 " -> not sending explicit RST_STREAM ({:?} was closed \
                  and send queue was flushed)",
                 stream.id
@@ -218,7 +214,7 @@ impl Send {
 
         let frame = frame::Reset::new(stream.id, reason);
 
-        tracing::trace!("send_reset -- queueing; frame={:?}", frame);
+        log::trace!("send_reset -- queueing; frame={:?}", frame);
         self.prioritize
             .queue_frame(frame.into(), buffer, stream, task);
         self.prioritize.reclaim_all_capacity(stream, counts);
@@ -276,7 +272,7 @@ impl Send {
 
         stream.state.send_close();
 
-        tracing::trace!("send_trailers -- queuing; frame={:?}", frame);
+        log::trace!("send_trailers -- queuing; frame={:?}", frame);
         self.prioritize
             .queue_frame(frame.into(), buffer, stream, task);
 
@@ -377,7 +373,7 @@ impl Send {
         task: &mut Option<Waker>,
     ) -> Result<(), Reason> {
         if let Err(e) = self.prioritize.recv_stream_window_update(sz, stream) {
-            tracing::debug!("recv_stream_window_update !!; err={:?}", e);
+            log::debug!("recv_stream_window_update !!; err={:?}", e);
 
             self.send_reset(Reason::FLOW_CONTROL_ERROR, buffer, stream, counts, task);
 
@@ -450,7 +446,7 @@ impl Send {
             if val < old_val {
                 // We must decrease the (remote) window on every open stream.
                 let dec = old_val - val;
-                tracing::trace!("decrementing all windows; dec={}", dec);
+                log::trace!("decrementing all windows; dec={}", dec);
 
                 let mut total_reclaimed = 0;
                 store.for_each(|mut stream| {
@@ -476,7 +472,7 @@ impl Send {
                         0
                     };
 
-                    tracing::trace!(
+                    log::trace!(
                         "decremented stream window; id={:?}; decr={}; reclaimed={}; flow={:?}",
                         stream.id,
                         dec,

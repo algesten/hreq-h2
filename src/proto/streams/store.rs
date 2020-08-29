@@ -244,10 +244,10 @@ where
     ///
     /// If the stream is already contained by the list, return `false`.
     pub fn push(&mut self, stream: &mut store::Ptr) -> bool {
-        tracing::trace!("Queue::push");
+        log::trace!("Queue::push");
 
         if N::is_queued(stream) {
-            tracing::trace!(" -> already queued");
+            log::trace!(" -> already queued");
             return false;
         }
 
@@ -259,7 +259,7 @@ where
         // Queue the stream
         match self.indices {
             Some(ref mut idxs) => {
-                tracing::trace!(" -> existing entries");
+                log::trace!(" -> existing entries");
 
                 // Update the current tail node to point to `stream`
                 let key = stream.key();
@@ -269,7 +269,7 @@ where
                 idxs.tail = stream.key();
             }
             None => {
-                tracing::trace!(" -> first entry");
+                log::trace!(" -> first entry");
                 self.indices = Some(store::Indices {
                     head: stream.key(),
                     tail: stream.key(),

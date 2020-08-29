@@ -38,7 +38,7 @@ impl Reset {
     }
 
     pub fn encode<B: BufMut>(&self, dst: &mut B) {
-        tracing::trace!(
+        log::trace!(
             "encoding RESET; id={:?} code={:?}",
             self.stream_id,
             self.error_code
