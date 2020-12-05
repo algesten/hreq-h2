@@ -44,7 +44,7 @@ futures-core = { version = "0.3", default-features = false }
 futures-sink = { version = "0.3", default-features = false }
 futures-util = { version = "0.3", default-features = false, features = ["io"] }
 futures-io   = { version = "0.3", default-features = false }
-bytes = "0.5.2"
+bytes = "0.6.0"
 http = "0.2"
 log = "0.4.1"
 fnv = "1.0.5"
