@@ -65,7 +65,7 @@ serde = "1.0.0"
 serde_json = "1.0.0"
 
 # Examples
-tokio = { version = "0.2", features = ["dns", "macros", "rt-core", "sync", "tcp"] }
+tokio = { version = "1.0", features = ["dns", "macros", "rt-core", "sync", "tcp"] }
 env_logger = { version = "0.5.3", default-features = false }
 rustls = "0.16"
 tokio-rustls = "0.12.0"
