@@ -55,7 +55,7 @@ pin-project-lite = "0.1.4"
 [dev-dependencies]
 
 # Fuzzing
-quickcheck = { version = "0.4.1", default-features = false }
+quickcheck = { version = "1.0.2", default-features = false }
 rand = "0.3.15"
 
 # HPACK fixtures
